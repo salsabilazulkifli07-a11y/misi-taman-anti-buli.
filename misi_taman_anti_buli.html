@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Misi Taman Anti-Buli</title>
+<style>
+  :root {
+    --pink: #f7c8d8; --lavender: #dcd2f5; --mint: #d5efdf;
+    --yellow: #fff0b8; --ink: #51445d; --purple: #8c6ab5;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; min-height: 100vh; padding: 24px 14px;
+    font-family: "Trebuchet MS", Arial, sans-serif; color: var(--ink);
+    background: linear-gradient(135deg, #fff7fa, #f2f4ff 55%, #effbf3);
+  }
+  .garden { max-width: 760px; margin: auto; }
+  header { text-align: center; padding: 12px 10px 20px; }
+  .flowers { font-size: 2rem; letter-spacing: 8px; }
+  h1 { margin: 8px 0; font-size: clamp(1.8rem, 5vw, 2.8rem); color: #76549c; }
+  header p { margin: 8px auto; max-width: 580px; line-height: 1.55; }
+  .panel {
+    background: rgba(255,255,255,.94); border: 2px solid #eadff5;
+    border-radius: 24px; padding: clamp(18px, 4vw, 30px);
+    box-shadow: 0 12px 28px rgba(111, 87, 145, .10);
+  }
+  .progress-row { display:flex; justify-content:space-between; gap:12px; font-weight:bold; font-size:.95rem; }
+  .track { height: 12px; margin: 12px 0 22px; background:#f0eaf7; border-radius:99px; overflow:hidden; }
+  .bar { height:100%; width:0; background:linear-gradient(90deg,#e8a8c6,#9f8ad5); transition:width .25s; }
+  .tag { display:inline-block; background:#f8e6ef; color:#8a5474; border-radius:99px; padding:6px 12px; font-size:.85rem; font-weight:bold; }
+  h2 { font-size:clamp(1.2rem, 3.5vw, 1.65rem); line-height:1.45; margin:15px 0 20px; }
+  .answers { display:grid; gap:12px; }
+  button {
+    font:inherit; cursor:pointer; border:0; border-radius:15px; padding:14px 16px;
+    transition:transform .12s, box-shadow .12s;
+  }
+  button:focus-visible { outline:3px solid #76549c; outline-offset:3px; }
+  .answer { text-align:left; background:#f7f3fc; border:2px solid #e5daf3; color:var(--ink); }
+  .answer:hover:not(:disabled) { transform:translateY(-2px); box-shadow:0 5px 12px #dcd2f5; }
+  .answer.correct { background:#e3f6e8; border-color:#82c99a; }
+  .answer.wrong { background:#fff0ef; border-color:#e6a09b; }
+  .answer:disabled { cursor:default; }
+  .feedback { min-height:56px; margin:16px 0 0; padding:12px 14px; border-radius:14px; background:#fff8dd; line-height:1.5; display:none; }
+  .feedback.show { display:block; }
+  .actions { display:flex; justify-content:flex-end; margin-top:16px; }
+  .primary { background:#8c6ab5; color:white; font-weight:bold; padding:13px 22px; }
+  .primary:hover { background:#76549c; }
+  .welcome, .result { text-align:center; }
+  .welcome p, .result p { line-height:1.65; }
+  .welcome .primary, .result .primary { margin-top:12px; }
+  .mascot { font-size:4rem; margin:8px; }
+  .score { font-size:3.2rem; color:#8c6ab5; font-weight:bold; margin:8px; }
+  .tip { background:#eff9f0; border-radius:16px; padding:14px; margin-top:18px; text-align:left; }
+  footer { text-align:center; font-size:.85rem; padding:18px 8px; opacity:.8; }
+  @media (max-width:480px) { body{padding:14px 10px;} .panel{border-radius:18px;} .answer{padding:13px;} }
+</style>
+</head>
+<body>
+<div class="garden">
+  <header>
+    <div class="flowers" aria-hidden="true">🌷 🌼 🌸 🌷</div>
+    <h1>Misi Taman Anti-Buli</h1>
+    <p>Jom jadikan sekolah tempat yang selamat, ceria dan mesra untuk semua. Jawab soalan dan kumpulkan mata!</p>
+  </header>
+
+  <main class="panel" id="game" aria-live="polite">
+    <section class="welcome">
+      <div class="mascot" aria-hidden="true">🧑‍🤝‍🧑🌻</div>
+      <h2>Adakah kamu sedia menjadi Wira Anti-Buli?</h2>
+      <p>Permainan ini mengandungi <strong>10 soalan</strong> tentang buli. Pilih jawapan yang paling sesuai. Ingat, kita semua berhak berasa selamat dan dihormati.</p>
+      <button class="primary" onclick="startGame()">Mula Misi ✨</button>
+    </section>
+  </main>
+  <footer>🌱 Hentikan buli. Sebarkan kebaikan. 🌱</footer>
+</div>
+
+<script>
+const questions = [
+ {q:"Apakah maksud buli?", a:["Perbuatan menyakiti atau mengganggu seseorang secara sengaja dan berulang","Bergurau sekali dengan kawan","Menolong rakan yang memerlukan"], correct:0, explain:"Buli ialah perbuatan menyakiti atau mengganggu orang lain dengan sengaja dan berulang kali."},
+ {q:"Yang manakah contoh buli fizikal?", a:["Mengejek nama seseorang","Menolak atau memukul rakan","Menyebarkan khabar angin"], correct:1, explain:"Buli fizikal melibatkan tindakan terhadap tubuh seseorang seperti menolak, memukul atau menendang."},
+ {q:"Apakah contoh buli lisan?", a:["Mengambil barang tanpa izin","Menghina atau memanggil dengan gelaran buruk","Tidak bersetuju dengan pendapat"], correct:1, explain:"Buli lisan menggunakan kata-kata untuk menghina, mengugut atau memalukan seseorang."},
+ {q:"Menyebarkan mesej memalukan tentang rakan di Internet ialah…", a:["Buli siber","Buli fizikal","Perbuatan membantu"], correct:0, explain:"Buli siber berlaku melalui telefon, media sosial, permainan dalam talian atau Internet."},
+ {q:"Kamu melihat seorang murid dibuli. Apakah tindakan yang baik?", a:["Merakam dan menyebarkan video","Ketawa bersama pembuli","Mendapatkan bantuan guru atau orang dewasa dipercayai"], correct:2, explain:"Laporkan kejadian kepada guru, kaunselor atau orang dewasa yang boleh membantu."},
+ {q:"Seorang rakan memberitahu bahawa dia dibuli. Kamu patut…", a:["Mendengar dan menyokongnya","Menyalahkannya","Memintanya merahsiakan semuanya"], correct:0, explain:"Dengar dengan empati, berikan sokongan dan bantu rakan mendapatkan pertolongan."},
+ {q:"Adakah membalas buli dengan membuli orang itu tindakan yang betul?", a:["Ya, supaya pembuli takut","Tidak, kerana boleh memburukkan keadaan","Ya, jika ramai yang menyokong"], correct:1, explain:"Jangan membalas dengan keganasan. Utamakan keselamatan dan dapatkan bantuan."},
+ {q:"Siapakah yang boleh kamu hubungi apabila mengalami buli di sekolah?", a:["Guru, kaunselor atau ibu bapa/penjaga","Orang yang tidak dikenali di Internet","Tiada sesiapa"], correct:0, explain:"Beritahu orang dewasa yang dipercayai supaya tindakan dan sokongan dapat diberikan."},
+ {q:"Apakah maksud menjadi saksi yang membantu (upstander)?", a:["Berdiam diri setiap kali melihat buli","Menyokong pembuli","Membantu dengan cara selamat dan melaporkan kejadian"], correct:2, explain:"Upstander membantu mangsa dengan selamat, contohnya mengajak rakan bersama-sama mendapatkan bantuan."},
+ {q:"Apakah mesej utama Misi Taman Anti-Buli?", a:["Buli ialah perkara biasa","Hormati orang lain dan hentikan buli","Mangsa perlu menyelesaikan semuanya sendiri"], correct:1, explain:"Setiap orang memainkan peranan untuk mewujudkan persekitaran yang selamat dan saling menghormati."}
+];
+let index=0, score=0, locked=false;
+const game=document.getElementById("game");
+function startGame(){ index=0; score=0; locked=false; showQuestion(); }
+function showQuestion(){
+ locked=false;
+ const item=questions[index];
+ game.innerHTML=`
+  <div class="progress-row"><span>Soalan ${index+1} daripada ${questions.length}</span><span>⭐ Mata: ${score}</span></div>
+  <div class="track" role="progressbar" aria-label="Kemajuan permainan" aria-valuemin="0" aria-valuemax="10" aria-valuenow="${index}"><div class="bar" style="width:${index/questions.length*100}%"></div></div>
+  <span class="tag">🌼 Soalan ${index+1}</span>
+  <h2>${item.q}</h2>
+  <div class="answers">${item.a.map((answer,i)=>`<button class="answer" onclick="chooseAnswer(${i})">${String.fromCharCode(65+i)}. ${answer}</button>`).join("")}</div>
+  <div class="feedback" id="feedback" role="status"></div>
+  <div class="actions"><button class="primary" id="next" onclick="nextQuestion()" style="display:none">${index===questions.length-1?"Lihat Keputusan":"Soalan Seterusnya"} →</button></div>`;
+}
+function chooseAnswer(choice){
+ if(locked) return;
+ locked=true;
+ const item=questions[index], buttons=game.querySelectorAll(".answer"), feedback=document.getElementById("feedback");
+ buttons.forEach((button,i)=>{button.disabled=true;if(i===item.correct)button.classList.add("correct");if(i===choice && i!==item.correct)button.classList.add("wrong");});
+ if(choice===item.correct){score++;feedback.innerHTML="🌟 <strong>Betul!</strong> "+item.explain;}
+ else {feedback.innerHTML="💛 <strong>Belum tepat.</strong> "+item.explain;}
+ feedback.classList.add("show");
+ game.querySelector(".progress-row span:last-child").textContent="⭐ Mata: "+score;
+ document.getElementById("next").style.display="inline-block";
+}
+function nextQuestion(){if(index<questions.length-1){index++;showQuestion();}else showResult();}
+function showResult(){
+ const percent=score/questions.length*100;
+ let message, badge;
+ if(score>=9){badge="🌟 Wira Anti-Buli Hebat!";message="Hebat! Kamu memahami cara mencegah dan menangani buli. Terus sebarkan kebaikan!";}
+ else if(score>=6){badge="🌷 Sahabat Anti-Buli";message="Bagus! Kamu sudah tahu banyak perkara. Terus belajar dan jadilah rakan yang prihatin.";}
+ else {badge="🌱 Bakal Wira Anti-Buli";message="Teruskan usaha! Baca semula bahan pembelajaran dan cuba lagi. Setiap kebaikan bermula dengan satu langkah.";}
+ game.innerHTML=`<section class="result"><div class="mascot">🏆🌸</div><span class="tag">Misi Selesai</span><h2>${badge}</h2><div class="score">${score}/10</div><p>${message}</p><div class="tip"><strong>Ingat 3 langkah penting:</strong><br>1. Jangan turut serta atau membalas buli.<br>2. Beritahu guru, kaunselor atau orang dewasa dipercayai.<br>3. Sokong rakan dan bantu dengan cara yang selamat.</div><button class="primary" onclick="startGame()">Main Semula ↻</button></section>`;
+}
+</script>
+</body>
+</html>
